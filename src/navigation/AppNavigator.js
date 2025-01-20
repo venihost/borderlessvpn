@@ -13,15 +13,11 @@ import ProfileScreen from '../screens/main/ProfileScreen';
 import SupportScreen from '../screens/main/SupportScreen';
 import SubscriptionScreen from '../screens/main/SubscriptionScreen';
 import PaymentScreen from '../screens/main/PaymentScreen';
-import PaymentConfirmScreen from '../screens/main/PaymentConfirmScreen';
+import PaymentConfirmationScreen from '../screens/main/PaymentConfirmationScreen';
 import EditProfileScreen from '../screens/main/EditProfileScreen';
 import WelcomeScreen from '../screens/main/WelcomeScreen';
 import ChangePasswordScreen from '../screens/main/ChangePasswordScreen';
-
-
-
-
-
+import ProcessPaymentScreen from '../screens/main/ProcessPaymentScreen';
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -39,12 +35,10 @@ function DrawerNavigator() {
       <Drawer.Screen name="Support" component={SupportScreen} />
       <Drawer.Screen name="Subscription" component={SubscriptionScreen} />
       <Drawer.Screen name="Payment" component={PaymentScreen} />
-      <Drawer.Screen name="PaymentConfirm" component={PaymentConfirmScreen} />
+      <Drawer.Screen name="PaymentConfirmation" component={PaymentConfirmationScreen} />
       <Drawer.Screen name="EditProfile" component={EditProfileScreen} />
       <Drawer.Screen name="ChangePassword" component={ChangePasswordScreen} />
-
-
-
+      <Drawer.Screen name="ProcessPayment" component={ProcessPaymentScreen} />
     </Drawer.Navigator>
   );
 }

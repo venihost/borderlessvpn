@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "borderlessvpn",
-    "slug": "borderlessvpn",
+    "slug": "borderless-vpn",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -20,10 +20,19 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "permissions": ["INTERNET"]
+      "permissions": [
+        "INTERNET"
+      ],
+      "package": "com.venihost.borderlessvpn"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "0e319f2e-be1b-4d84-8c36-75ca5791c825"
+      }
+    },
+    "owner": "venihost"
   }
 }

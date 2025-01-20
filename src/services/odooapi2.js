@@ -1,5 +1,5 @@
 // export const ODOO_BASE_URL = 'http://192.168.0.176:8017';
-export const ODOO_BASE_URL = 'http://192.168.1.173:8017';
+export const ODOO_BASE_URL = 'http://192.168.0.159:8017';
 
 export const API_ENDPOINTS = {
   REGISTER: '/api/v1/vpn/register',

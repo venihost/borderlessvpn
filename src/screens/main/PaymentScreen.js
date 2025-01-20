@@ -4,33 +4,22 @@ import { WebView } from 'react-native-webview';
 import { Text, Button, Icon, Card } from 'react-native-elements';
 import { ODOO_CONFIG } from '../../constants/odooapi2';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
 export default function PaymentScreen({ navigation, route }) {
-    // Screen state
     const [loading, setLoading] = useState(false);
-    const [paymentUrl, setPaymentUrl] = useState(null);
     const [paymentMethod, setPaymentMethod] = useState('flutterwave');
-
-    // Subscription details from previous screen
     const { plan, subscriptionId, amount } = route.params;
 
-    // Available payment methods
     const paymentMethods = [
         { id: 'flutterwave', name: 'Flutterwave', icon: 'payment' },
         { id: 'paystack', name: 'Paystack', icon: 'credit-card' },
         { id: 'paypal', name: 'PayPal', icon: 'account-balance' }
     ];
 
-    // Process payment
     const initiatePayment = async () => {
         setLoading(true);
-
         try {
-            // Get user credentials
             const userId = await AsyncStorage.getItem('userId');
-            const userToken = await AsyncStorage.getItem('userToken');
-
-            // Prepare payment payload
+        
             const paymentPayload = {
                 jsonrpc: '2.0',
                 method: 'call',
@@ -39,25 +28,26 @@ export default function PaymentScreen({ navigation, route }) {
                     method: 'execute_kw',
                     args: [
                         ODOO_CONFIG.DATABASE,
-                        parseInt(userToken),
-                        ODOO_CONFIG.PASSWORD,
+                        2,  // Admin user ID
+                        'password',  // Admin password
                         'vpn.payment.gateway',
                         'create',
                         [{
-                            subscription_id: subscriptionId,
-                            amount: amount,
+                            subscription_id: parseInt(subscriptionId),
+                            amount: amount.toString(),
+                            currency_id: 2,
                             gateway_provider: paymentMethod,
-                            payment_method: 'card', // Default to card
-                            payment_status: 'draft',
-                            currency_id: 1 // Assuming USD currency ID is 1
-                        }]
+                            payment_method: 'card',
+                            payment_status: 'pending',
+                            state: 'draft',
+                            user_id: parseInt(userId)
+                        }],
+                        {context: {lang: 'en_US', tz: 'UTC', uid: 2}}
                     ]
-                },
-                id: Math.floor(Math.random() * 1000000)
+                }
             };
 
-            // Send payment request
-            const response = await fetch(`${ODOO_CONFIG.HOST}:${ODOO_CONFIG.PORT}${ODOO_CONFIG.JSONRPC_PATH}`, {
+            const response = await fetch(`${ODOO_CONFIG.HOST}:${ODOO_CONFIG.PORT}/jsonrpc`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -66,100 +56,21 @@ export default function PaymentScreen({ navigation, route }) {
             });
 
             const result = await response.json();
-
-            // Handle payment response
+        
             if (result.result) {
-                // Initiate payment on the backend
-                const initiatePaymentPayload = {
-                    jsonrpc: '2.0',
-                    method: 'call',
-                    params: {
-                        service: 'object',
-                        method: 'execute_kw',
-                        args: [
-                            ODOO_CONFIG.DATABASE,
-                            parseInt(userToken),
-                            ODOO_CONFIG.PASSWORD,
-                            'vpn.payment.gateway',
-                            'initiate_payment',
-                            [result.result]
-                        ]
-                    },
-                    id: Math.floor(Math.random() * 1000000)
-                };
-
-                const initiateResponse = await fetch(`${ODOO_CONFIG.HOST}:${ODOO_CONFIG.PORT}${ODOO_CONFIG.JSONRPC_PATH}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(initiatePaymentPayload)
+                navigation.navigate('ProcessPayment', {
+                    paymentId: result.result,
+                    provider: paymentMethod,
+                    amount: amount,
+                    plan: plan
                 });
-
-                const initiateResult = await initiateResponse.json();
-
-                if (initiateResult.result) {
-                    // Set payment URL for WebView
-                    setPaymentUrl(initiateResult.result);
-                } else {
-                    // Payment initiation failed
-                    Alert.alert(
-                        'Payment Failed',
-                        'Unable to initiate payment. Please try again.',
-                        [{ text: 'OK' }]
-                    );
-                }
-            } else {
-                // Payment creation failed
-                Alert.alert(
-                    'Payment Failed',
-                    result.error?.message || 'Unable to create payment. Please try again.',
-                    [{ text: 'OK' }]
-                );
             }
         } catch (error) {
-            console.error('Payment processing error:', error);
-            Alert.alert(
-                'Error',
-                'An unexpected error occurred. Please try again.',
-                [{ text: 'OK' }]
-            );
+            Alert.alert('Payment Failed', 'Please try again.');
         } finally {
             setLoading(false);
         }
     };
-
-    // Handle WebView navigation state
-    const handleWebViewNavigationStateChange = (newNavState) => {
-        const { url } = newNavState;
-        
-        // Check for successful or cancelled payment URLs
-        if (url.includes('/payment/callback')) {
-            // Payment successful, navigate to confirmation screen
-            navigation.navigate('PaymentConfirmation', {
-                plan: plan,
-                amount: amount
-            });
-        } else if (url.includes('/payment/cancel')) {
-            // Payment cancelled
-            Alert.alert(
-                'Payment Cancelled',
-                'You have cancelled the payment process.',
-                [{ text: 'OK', onPress: () => navigation.goBack() }]
-            );
-        }
-    };
-
-    // Render payment methods or WebView
-    if (paymentUrl) {
-        return (
-            <WebView
-                source={{ uri: paymentUrl }}
-                style={styles.webview}
-                onNavigationStateChange={handleWebViewNavigationStateChange}
-            />
-        );
-    }
 
     return (
         <View style={styles.container}>
@@ -175,7 +86,6 @@ export default function PaymentScreen({ navigation, route }) {
             </View>
 
             <View style={styles.content}>
-                {/* Plan Summary Card */}
                 <Card containerStyle={styles.planSummary}>
                     <Text style={styles.summaryTitle}>Plan Details</Text>
                     <View style={styles.planDetails}>
@@ -184,7 +94,6 @@ export default function PaymentScreen({ navigation, route }) {
                     </View>
                 </Card>
 
-                {/* Payment Method Selection */}
                 <Text style={styles.sectionTitle}>Select Payment Gateway</Text>
                 <View style={styles.paymentMethodContainer}>
                     {paymentMethods.map((method) => (
@@ -202,7 +111,6 @@ export default function PaymentScreen({ navigation, route }) {
                     ))}
                 </View>
 
-                {/* Pay Button */}
                 <Button
                     title={loading ? "Processing..." : `Pay ${amount.toFixed(2)}`}
                     buttonStyle={styles.payButton}
@@ -214,7 +122,6 @@ export default function PaymentScreen({ navigation, route }) {
         </View>
     );
 }
-
 const styles = StyleSheet.create({
     container: {
         flex: 1,

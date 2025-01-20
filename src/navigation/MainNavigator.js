@@ -20,6 +20,7 @@ export default function MainNavigator() {
       <MainStack.Screen name="Home" component={HomeScreen} />
       <MainStack.Screen name="Settings" component={SettingsScreen} />
       <MainStack.Screen name="Servers" component={ServersScreen} />
+    
     </MainStack.Navigator>
   );
 }
