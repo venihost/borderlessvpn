@@ -2,10 +2,10 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { STORAGE_KEYS } from '../utils/constants';
 
-const BASE_URL = 'http://192.168.0.252:8017';
-const DB_NAME = 'vpn';
-const ADMIN_EMAIL = 'admin';
-const ADMIN_PASSWORD = 'password';
+const BASE_URL = 'https://borderlessvpn.venihost.com.ng';
+const DB_NAME = 'borderlessvpn.venihost.com.ng';
+const ADMIN_EMAIL = 'API';
+const ADMIN_PASSWORD = '@123&borderlessVPN';
 
 export const jsonRpc = async (endpoint, params) => {
     const response = await axios.post(`${BASE_URL}${endpoint}`, {

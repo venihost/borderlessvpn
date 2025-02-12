@@ -1,9 +1,9 @@
 export const ODOO_CONFIG = {
-  HOST: 'http://192.168.0.252',
-  PORT: '8017',
-  DATABASE: 'vpn',
-  USERNAME: 'admin', // Your admin username
-  PASSWORD: 'password', // Your admin password
+  HOST: 'https://borderlessvpn.venihost.com.ng',
+  PORT: '',  // Remove port since it's using standard HTTPS
+  DATABASE: 'borderlessvpn.venihost.com.ng',
+  USERNAME: 'API',
+  PASSWORD: '@123&borderlessVPN',
   JSONRPC_PATH: '/jsonrpc',
 };
 export class OdooApi {
@@ -14,8 +14,9 @@ export class OdooApi {
     this.username = config.USERNAME;
     this.password = config.PASSWORD;
     this.uid = null;
-    this.baseURL = `${this.host}:${this.port}`;
-  }
+    this.baseURL = this.host; // Remove port concatenation since we're using the full domain
+}
+
 
   async authenticate() {
     try {
