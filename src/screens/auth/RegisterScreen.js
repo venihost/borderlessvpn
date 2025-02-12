@@ -21,7 +21,7 @@ export default function RegisterScreen({ navigation }) {
         service: 'object',
         method: 'execute_kw',
         args: [
-          'vpn',
+          'borderlessvpn.venihost.com.ng',
           2,
           'password',
           'res.users',

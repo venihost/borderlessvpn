@@ -18,7 +18,7 @@ export default function RegisterScreen({ navigation }) {
 
     setIsLoading(true);
     try {
-      const response = await fetch('http://192.168.1.173:8017/api/v1/vpn/register', {
+      const response = await fetch('https://borderlessvpn.venihost.com.ng/api/v1/vpn/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -32,7 +32,7 @@ export default function RegisterScreen({ navigation }) {
       });
 
       const data = await response.text();
-      console.log('Server response:', data); // Debug log
+      console.log('Server response:', data);
 
       if (response.ok) {
         Alert.alert(
