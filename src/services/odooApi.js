@@ -2,7 +2,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { STORAGE_KEYS } from '../utils/constants';
 
-const BASE_URL = 'http://192.168.0.159:8017';
+const BASE_URL = 'http://192.168.0.252:8017';
 const DB_NAME = 'vpn';
 const ADMIN_EMAIL = 'admin';
 const ADMIN_PASSWORD = 'password';

@@ -1,48 +1,44 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, View, ScrollView } from 'react-native';
 import { ListItem, Icon, Text, Button, SearchBar } from 'react-native-elements';
-
-const serverList = [
-  {
-    country: 'Nigeria',
-    city: 'Lagos',
-    ping: 45,
-    flag: 'us',
-    load: 65,
-  },
-  {
-    country: 'Ghana',
-    city: 'Accra',
-    ping: 75,
-    flag: 'gb',
-    load: 45,
-  },
-  {
-    country: 'Kenya',
-    city: 'Nairobi',
-    ping: 120,
-    flag: 'jp',
-    load: 30,
-  },
-  {
-    country: 'Uganda',
-    city: 'Kampala',
-    ping: 85,
-    flag: 'de',
-    load: 55,
-  },
-  {
-    country: 'South Africa',
-    city: 'cape town',
-    ping: 95,
-    flag: 'sg',
-    load: 40,
-  },
-];
+import { vpnService } from '../../services/vpn/openVpnService';
+import { useVpnStore } from '../../store/vpnState';
+import { OdooApi } from '../../constants/odooapi2';
 
 export default function ServersScreen({ navigation }) {
+  const [servers, setServers] = useState([]);
   const [search, setSearch] = useState('');
   const [selectedServer, setSelectedServer] = useState(null);
+  const { isConnected, connect, disconnect } = useVpnStore();
+  const odooApi = new OdooApi();
+
+  useEffect(() => {
+    fetchServers();
+  }, []);
+
+  const fetchServers = async () => {
+    try {
+      await odooApi.authenticate();
+      const params = {
+        domain: [],
+        fields: ['name', 'country', 'city', 'load', 'ping', 'country_code']
+      };
+      const result = await odooApi.searchRead('vpn.server', params);
+      setServers(result || []);
+    } catch (error) {
+      console.error('Failed to fetch servers:', error.message);
+    }
+  };
+
+  const handleConnect = async () => {
+    if (!selectedServer) return;
+    try {
+      await connect(selectedServer.id);
+      navigation.goBack();
+    } catch (error) {
+      console.error('Connection failed:', error);
+    }
+  };
 
   const getLoadColor = (load) => {
     if (load < 50) return '#4CAF50';
@@ -74,7 +70,7 @@ export default function ServersScreen({ navigation }) {
       />
 
       <ScrollView style={styles.serverList}>
-        {serverList.map((server, index) => (
+        {servers.map((server, index) => (
           <ListItem
             key={index}
             containerStyle={[
@@ -84,7 +80,7 @@ export default function ServersScreen({ navigation }) {
             onPress={() => setSelectedServer(index)}
           >
             <Icon
-              name={`flag-${server.flag}`}
+              name={`flag-${server.country_code.toLowerCase()}`}
               type="material-community"
               size={24}
               color="#4F46E5"
@@ -118,13 +114,12 @@ export default function ServersScreen({ navigation }) {
           disabled={selectedServer === null}
           buttonStyle={styles.connectButton}
           containerStyle={styles.connectButtonContainer}
-          onPress={() => navigation.goBack()}
+          onPress={handleConnect}
         />
       </View>
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,

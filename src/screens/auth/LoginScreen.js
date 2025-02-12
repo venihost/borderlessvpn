@@ -3,6 +3,7 @@ import { View, StyleSheet } from 'react-native';
 import { Text, Button, Input, Icon } from 'react-native-elements';
 import { ODOO_CONFIG } from '../../constants/odooapi2';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import NetInfo from '@react-native-community/netinfo';
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
@@ -15,10 +16,18 @@ export default function LoginScreen({ navigation }) {
     setError('');
 
     try {
-      const response = await fetch(`${ODOO_CONFIG.HOST}:${ODOO_CONFIG.PORT}${ODOO_CONFIG.JSONRPC_PATH}`, {
+      const netInfo = await NetInfo.fetch();
+      if (!netInfo.isConnected) {
+        setError('No internet connection. Please check your network settings.');
+        setLoading(false);
+        return;
+      }
+
+      console.log('Attempting connection to:', `${ODOO_CONFIG.HOST}:${ODOO_CONFIG.PORT}${ODOO_CONFIG.JSONRPC_PATH}`);      const response = await fetch(`${ODOO_CONFIG.HOST}:${ODOO_CONFIG.PORT}${ODOO_CONFIG.JSONRPC_PATH}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
         },
         body: JSON.stringify({
           jsonrpc: '2.0',
@@ -38,6 +47,7 @@ export default function LoginScreen({ navigation }) {
       });
 
       const result = await response.json();
+      console.log('Response:', result);
 
       if (result.result) {
         const uid = result.result;

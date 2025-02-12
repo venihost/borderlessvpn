@@ -1,5 +1,5 @@
 export const ODOO_CONFIG = {
-  HOST: 'http://192.168.0.159',
+  HOST: 'http://192.168.0.252',
   PORT: '8017',
   DATABASE: 'vpn',
   USERNAME: 'admin', // Your admin username
