@@ -1,6 +1,8 @@
+import Constants from 'expo-constants';
+
 const ENV = {
   dev: {
-    apiUrl: 'https://borderlessvpn.venihost.com.ng/api/v1',
+    apiUrl: 'http://192.168.0.159:8017/api/v1',
     timeout: 10000,
   },
   staging: {
@@ -8,13 +10,16 @@ const ENV = {
     timeout: 10000,
   },
   prod: {
-    apiUrl: 'https://borderlessvpn.venihost.com.ng/api/v1',
+    apiUrl: Constants.expoConfig?.extra?.apiUrl || 'https://borderlessvpn.venihost.com.ng/api/v1',
     timeout: 10000,
   },
 };
 
 const getEnvironment = () => {
-  return ENV.prod; // Set to production by default
+  if (__DEV__) {
+    return ENV.dev;
+  }
+  return ENV.prod;
 };
 
 export const apiConfig = {
